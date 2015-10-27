@@ -26,7 +26,7 @@ public class BluetoothDevicePicker extends AppCompatActivity{
     class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDeviceAdapter.BluetoothViewHolder> {
         public class BluetoothViewHolder extends RecyclerView.ViewHolder {
 
-            TextView view;
+            final TextView view;
             BluetoothDevice bluetoothDevice;
 
             public BluetoothViewHolder(TextView itemView) {
@@ -53,13 +53,11 @@ public class BluetoothDevicePicker extends AppCompatActivity{
             }
         }
 
-        ArrayList<BluetoothDevice> devices;
-        LayoutInflater inflater;
-        Activity activity;
+        final ArrayList<BluetoothDevice> devices;
+        final LayoutInflater inflater;
 
         public BluetoothDeviceAdapter(Activity context) {
             super();
-            activity = context;
             devices = new ArrayList<>();
             inflater = LayoutInflater.from(context);
         }
@@ -86,9 +84,9 @@ public class BluetoothDevicePicker extends AppCompatActivity{
         }
     }
 
-    BluetoothDeviceAdapter adapter;
-    BluetoothAdapter bluetooth;
-    static final int REQUEST_ENABLE_BLUETOOTH = 11;
+    private BluetoothDeviceAdapter adapter;
+    private BluetoothAdapter bluetooth;
+    private static final int REQUEST_ENABLE_BLUETOOTH = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +115,7 @@ public class BluetoothDevicePicker extends AppCompatActivity{
 
     private BroadcastReceiver mReceiver;
 
-    void startDeviceSearching(final BluetoothAdapter bluetooth) {
+    private void startDeviceSearching(final BluetoothAdapter bluetooth) {
         bluetooth.startDiscovery();
 
         mReceiver = new BroadcastReceiver() {

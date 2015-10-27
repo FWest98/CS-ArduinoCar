@@ -11,17 +11,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    BluetoothDevice device;
-    OutputStream connection;
-    BluetoothSocket socket;
+    private BluetoothDevice device;
+    private OutputStream connection;
+    private BluetoothSocket socket;
 
-    static final int REQUEST_BLUETOOTH_DEVICE = 12;
+    private static final int REQUEST_BLUETOOTH_DEVICE = 12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
             setupConnection();
     }
 
-    static final byte[] stop = hexStringToByteArray("00");
-    static final byte[] forward = hexStringToByteArray("0144");
-    static final byte[] left = hexStringToByteArray("0244");
-    static final byte[] backwards = hexStringToByteArray("0344");
-    static final byte[] right = hexStringToByteArray("0444");
+    private static final byte[] stop = hexStringToByteArray("00");
+    private static final byte[] forward = hexStringToByteArray("0144");
+    private static final byte[] left = hexStringToByteArray("0244");
+    private static final byte[] backwards = hexStringToByteArray("0344");
+    private static final byte[] right = hexStringToByteArray("0444");
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -67,14 +66,14 @@ public class MainActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
     }
 
-    void startDevicePicker() {
+    private void startDevicePicker() {
         Intent i = new Intent(this, BluetoothDevicePicker.class);
         startActivityForResult(i, REQUEST_BLUETOOTH_DEVICE);
     }
 
-    static final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    void setupConnection(){
+    private void setupConnection(){
         if (device == null)
             throw new RuntimeException("Called setupConnection while device was null");
         new AsyncTask<BluetoothDevice, Void, BluetoothSocket>(){
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         connection = socket.getOutputStream();
                     } catch (Exception e) {
-                        Log.e("MainActivity", "Could not get outputstream", e);
+                        Log.e("MainActivity", "Could not get OutputStream", e);
                     }
             }
         }.execute(device);
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         device = null;
     }
 
-    class ControlTouchListener implements Button.OnTouchListener {
+    private class ControlTouchListener implements Button.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (connection == null)
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static byte[] hexStringToByteArray(String s) {
+    private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len/2];
 
