@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
             setupConnection();
     }
 
-    private static final byte[] stop = hexStringToByteArray("00");
-    private static final byte[] forward = hexStringToByteArray("0144");
-    private static final byte[] left = hexStringToByteArray("0244");
-    private static final byte[] backwards = hexStringToByteArray("0344");
-    private static final byte[] right = hexStringToByteArray("0444");
+    private static final byte[] stop = hexStringToByteArray("00FF");
+    private static final byte[] forward = hexStringToByteArray("0144FF");
+    private static final byte[] left = hexStringToByteArray("0244FF");
+    private static final byte[] backwards = hexStringToByteArray("0344FF");
+    private static final byte[] right = hexStringToByteArray("0444FF");
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,11 +79,24 @@ public class MainActivity extends AppCompatActivity {
         new AsyncTask<BluetoothDevice, Void, BluetoothSocket>(){
             @Override
             protected BluetoothSocket doInBackground(BluetoothDevice[] params) {
+                BluetoothSocket socket;
                 try {
-                    return params[0].createRfcommSocketToServiceRecord(uuid);
-                } catch (Exception e) {
+                    socket = params[0].createRfcommSocketToServiceRecord(uuid);
+                } catch(Exception e) {
                     return null;
                 }
+
+                try {
+                    socket.connect();
+                } catch (Exception e) {
+                    try {
+                        socket.close();
+                    } catch(Exception e2) {}
+
+                    return null;
+                }
+
+                return socket;
             }
 
             @Override
@@ -122,23 +135,28 @@ public class MainActivity extends AppCompatActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     switch (v.getId()) {
                         case R.id.button_down:
+                            Log.d("COMMAND", String.valueOf(backwards));
                             connection.write(backwards);
                             connection.flush();
                             break;
                         case R.id.button_left:
+                            Log.d("COMMAND", String.valueOf(left));
                             connection.write(left);
                             connection.flush();
                             break;
                         case R.id.button_right:
+                            Log.d("COMMAND", String.valueOf(right));
                             connection.write(right);
                             connection.flush();
                             break;
                         case R.id.button_up:
+                            Log.d("COMMAND", String.valueOf(forward));
                             connection.write(forward);
                             connection.flush();
                             break;
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    Log.d("COMMAND", String.valueOf(stop));
                     connection.write(stop);
                     connection.flush();
                 }

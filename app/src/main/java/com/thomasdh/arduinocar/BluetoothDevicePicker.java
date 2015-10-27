@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class BluetoothDevicePicker extends AppCompatActivity{
 
@@ -62,7 +63,10 @@ public class BluetoothDevicePicker extends AppCompatActivity{
             inflater = LayoutInflater.from(context);
         }
 
-        public void addDevice(BluetoothDevice device){
+        public void addDevice(BluetoothDevice device) {
+            for(BluetoothDevice currentDevice : devices) {
+                if(currentDevice.getAddress() == device.getAddress()) return; // unique devices
+            }
             devices.add(device);
             notifyDataSetChanged();
         }
@@ -109,6 +113,10 @@ public class BluetoothDevicePicker extends AppCompatActivity{
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
             } else {
                 startDeviceSearching(bluetooth);
+                Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
+                for(BluetoothDevice device : pairedDevices) {
+                    adapter.addDevice(device);
+                }
             }
         }
     }
