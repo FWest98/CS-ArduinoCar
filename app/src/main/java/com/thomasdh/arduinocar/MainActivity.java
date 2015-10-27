@@ -4,13 +4,16 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice device;
     private OutputStream connection;
     private BluetoothSocket socket;
+    private SeekBar seekBar;
 
     private static final int REQUEST_BLUETOOTH_DEVICE = 12;
 
@@ -37,6 +41,23 @@ public class MainActivity extends AppCompatActivity {
         left.setOnTouchListener(listener);
         Button right = (Button) findViewById(R.id.button_right);
         right.setOnTouchListener(listener);
+        seekBar = (SeekBar) findViewById(R.id.seekbar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                ((TextView) findViewById(R.id.textView)).setText(seekBar.getProgress() + "/" + seekBar.getMax());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     @Override
@@ -48,11 +69,12 @@ public class MainActivity extends AppCompatActivity {
             setupConnection();
     }
 
-    private static final byte[] stop = hexStringToByteArray("00FF");
-    private static final byte[] forward = hexStringToByteArray("0144FF");
-    private static final byte[] left = hexStringToByteArray("0244FF");
-    private static final byte[] backwards = hexStringToByteArray("0344FF");
-    private static final byte[] right = hexStringToByteArray("0444FF");
+    private static final byte stop = hexStringToByteArray("00")[0];
+    private static final byte forward = hexStringToByteArray("01")[0];
+    private static final byte left = hexStringToByteArray("02")[0];
+    private static final byte backwards = hexStringToByteArray("03")[0];
+    private static final byte right = hexStringToByteArray("04")[0];
+    private static final byte end = hexStringToByteArray("FF")[0];
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -136,28 +158,24 @@ public class MainActivity extends AppCompatActivity {
                     switch (v.getId()) {
                         case R.id.button_down:
                             Log.d("COMMAND", String.valueOf(backwards));
-                            connection.write(backwards);
-                            connection.flush();
+                            sendCommand(backwards);
                             break;
                         case R.id.button_left:
                             Log.d("COMMAND", String.valueOf(left));
-                            connection.write(left);
-                            connection.flush();
+                            sendCommand(left);
                             break;
                         case R.id.button_right:
                             Log.d("COMMAND", String.valueOf(right));
-                            connection.write(right);
-                            connection.flush();
+                            sendCommand(right);
                             break;
                         case R.id.button_up:
                             Log.d("COMMAND", String.valueOf(forward));
-                            connection.write(forward);
-                            connection.flush();
+                            sendCommand(forward);
                             break;
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     Log.d("COMMAND", String.valueOf(stop));
-                    connection.write(stop);
+                    connection.write(new byte[] { stop, end });
                     connection.flush();
                 }
             } catch (Exception e) {
@@ -176,5 +194,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return data;
+    }
+
+    private void sendCommand(byte command) throws IOException {
+        connection.write(new byte[] { command, (byte) seekBar.getProgress(), end });
+        connection.flush();
     }
 }
